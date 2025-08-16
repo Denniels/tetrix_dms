@@ -86,6 +86,60 @@ pip install -r requirements.txt
 python3 tetrix.py
 ```
 
+### Descargas (Windows, Linux, macOS)
+
+Puedes descargar los binarios desde la página de Releases del proyecto. Para comodidad los enlaces siguientes apuntan a la versión "latest" (reemplaza si necesitas una etiqueta concreta):
+
+- 🪟 Windows: https://github.com/Denniels/tetrix_dms/releases/latest/download/tetrix-windows-latest.exe
+- 🐧 Linux:  https://github.com/Denniels/tetrix_dms/releases/latest/download/tetrix-ubuntu-latest
+- 🍎 macOS:  https://github.com/Denniels/tetrix_dms/releases/latest/download/tetrix-macos-latest
+
+Descarga y ejecución rápida desde consola:
+
+- Windows (PowerShell):
+
+```powershell
+# Descargar y ejecutar (ejemplo, requiere PowerShell 5+)
+Invoke-WebRequest -Uri "https://github.com/Denniels/tetrix_dms/releases/latest/download/tetrix-windows-latest.exe" -OutFile .\tetrix.exe
+Start-Process .\tetrix.exe
+```
+
+- Linux (curl):
+
+```bash
+# Descargar y ejecutar (reemplaza nombre si la release empaqueta diferente)
+curl -L -o tetrix "https://github.com/Denniels/tetrix_dms/releases/latest/download/tetrix-ubuntu-latest"
+chmod +x tetrix
+./tetrix
+```
+
+- macOS (curl):
+
+```bash
+# Descargar y abrir (si es .app o binario en dist/)
+curl -L -o tetrix-macos.tar.gz "https://github.com/Denniels/tetrix_dms/releases/latest/download/tetrix-macos-latest"
+tar -xzf tetrix-macos.tar.gz
+# Si se genera un bundle .app:
+open ./tetrix.app || ./dist/tetrix || ./tetrix
+```
+
+Verificación (checksums)
+
+Si publicamos un archivo `checksums.sha256` en las Releases, puedes verificar la descarga:
+
+```bash
+# Descargar y verificar en Linux/macOS
+curl -L -o checksums.sha256 "https://github.com/Denniels/tetrix_dms/releases/latest/download/checksums.sha256"
+sha256sum -c checksums.sha256
+```
+
+En Windows PowerShell:
+
+```powershell
+# Calcular SHA256 de un fichero
+Get-FileHash .\tetrix.exe -Algorithm SHA256 | Format-List
+```
+
 ## Cómo construir los ejecutables (para desarrolladores)
 
 Recomendación: crear un entorno virtual antes de instalar dependencias para aislar el build.
