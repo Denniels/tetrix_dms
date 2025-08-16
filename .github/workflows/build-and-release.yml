@@ -143,3 +143,5 @@ jobs:
           asset_path: artifacts_zips/tetrix-artifacts.tar.gz
           asset_name: tetrix-artifacts-${{ github.ref_name }}.tar.gz
           asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
