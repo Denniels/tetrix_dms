@@ -190,21 +190,10 @@ Get-FileHash .\dist\tetrix.exe -Algorithm SHA256 | Format-List
 - Windows: la firma de código reduce advertencias SmartScreen; requiere un certificado (pfx) y `signtool`. Se puede integrar en CI usando secretos.
 - macOS: notarización y firma requieren cuenta de desarrollador Apple; la notarización es necesaria para evitar advertencias de Gatekeeper.
 
-## Distribución y canales recomendados
-
-- GitHub Releases: centraliza assets por versión y es gratuito. Recomendado como primer canal.
-- itch.io: buena opción para juegos — permite página con imágenes, descripciones, y descarga para usuarios menos técnicos.
-
-## Siguientes pasos sugeridos
-
-1. Si quieres, adapto un workflow de GitHub Actions para generar binarios automáticamente en las 3 plataformas y publicar un Release draft con los assets.
-2. Si necesitas firmado/notarización, prepara los certificados y los secretos de repo (no puedo generarlos por ti).
-3. Si quieres una página de itch.io, puedo preparar instrucciones para subir manualmente o con la API.
-
 ## Contacto y créditos
 
 Desarrollado por: Daniel Mardones
-Si necesitas permiso para usar el código o distribuirlo de forma distinta, contacta al autor.
+Si necesitas permiso para usar el código o distribuirlo de forma distinta, contactame.
 
 -----
 Archivo actualizado automáticamente para incluir instrucciones de uso, build y distribución.
