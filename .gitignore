@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build artifacts
+build/
+dist/
+!dist/tetrix.exe
+*.spec
+
+# PyInstaller cache
+pyinstaller_cache/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Distribution
+*.egg-info/
+.eggs/
+
+# Secrets and keys (do NOT commit private keys or certificates)
+*.pfx
+*.pem
+*.key
+*.crt
+*.cer
+secrets.*
+.env
+.env.*
+
+# Coverage
+htmlcov/
+.coverage
+
+# Others
+*.db
+*.sqlite3
+
+# Keep local test artifacts out
+tests/tmp/
+
+# If you intentionally want to keep the current dist/tetrix.exe tracked, remove this line or add an exception above.
+# dist/
