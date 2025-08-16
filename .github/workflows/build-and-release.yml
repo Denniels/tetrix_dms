@@ -101,7 +101,7 @@ jobs:
           find artifacts -type f -not -path "artifacts/checksums/*" -exec sha256sum {} \; > artifacts/checksums/checksums.sha256 || true
         shell: bash
 
-      - name: Debug: list downloaded artifacts
+      - name: "Debug: list downloaded artifacts"
         run: |
           echo "Listing artifacts directory"
           ls -la artifacts || true
@@ -109,7 +109,7 @@ jobs:
           find artifacts -maxdepth 4 -type f -print -exec du -h {} \; || true
         shell: bash
 
-      - name: Create draft release
+      - name: "Create draft release"
         id: create_release
         uses: actions/create-release@v1
         with:
@@ -122,7 +122,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload assets to draft release (via curl)
+      - name: "Upload assets to draft release (via curl)"
         run: |
           set -euo pipefail
           UPLOAD_URL='${{ steps.create_release.outputs.upload_url }}'
