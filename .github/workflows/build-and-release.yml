@@ -101,13 +101,63 @@ jobs:
           find artifacts -type f -not -path "artifacts/checksums/*" -exec sha256sum {} \; > artifacts/checksums/checksums.sha256 || true
         shell: bash
 
-      - name: Create draft release and upload assets
-        uses: softprops/action-gh-release@v1
+      - name: Debug: list downloaded artifacts
+        run: |
+          echo "Listing artifacts directory"
+          ls -la artifacts || true
+          echo "Recursive listing"
+          find artifacts -maxdepth 4 -type f -print -exec du -h {} \; || true
+        shell: bash
+
+      - name: Create draft release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          files: |
-            artifacts/ubuntu/**
-            artifacts/windows/**
-            artifacts/macos/**
-            artifacts/checksums/**
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body: |
+            Release automática generada por GitHub Actions for tag ${{ github.ref_name }}.
+          draft: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload assets to draft release (via curl)
+        run: |
+          set -euo pipefail
+          UPLOAD_URL='${{ steps.create_release.outputs.upload_url }}'
+          echo "Upload URL (raw): $UPLOAD_URL"
+          if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
+            echo "No upload URL found from create-release step. Aborting."
+            exit 1
+          fi
+          # Strip the template suffix like '{?name,label}' if present
+          UPLOAD_URL_CLEAN=${UPLOAD_URL%\{*}
+          echo "Upload URL (clean): $UPLOAD_URL_CLEAN"
+
+          files_count=0
+          while IFS= read -r -d $'\0' file; do
+            files_count=$((files_count+1))
+            name=$(basename "$file")
+            echo "Uploading $file as $name"
+            resp=$(curl -sS -w "%{http_code}" -XPOST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$file" "$UPLOAD_URL_CLEAN?name=$name") || true
+            http_code=${resp: -3}
+            body=${resp%$http_code}
+            echo "HTTP $http_code"
+            if [ "$http_code" != "201" ] && [ "$http_code" != "200" ]; then
+              echo "Upload failed for $name. Response body:"
+              echo "$body"
+              exit 1
+            fi
+          done < <(find artifacts -type f -print0)
+
+          if [ "$files_count" -eq 0 ]; then
+            echo "No files found to upload in artifacts/.";
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
