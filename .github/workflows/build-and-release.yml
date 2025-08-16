@@ -10,6 +10,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
@@ -25,14 +26,19 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           python3 -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found — skipping pip install"
+            exit 1
+          fi
         shell: bash
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if (Test-Path requirements.txt) { pip install -r requirements.txt } else { Write-Host 'No requirements.txt found — skipping pip install'; exit 1 }
         shell: pwsh
 
       - name: Build on Windows
@@ -42,12 +48,16 @@ jobs:
 
       - name: Build on Linux
         if: runner.os == 'Linux'
-        run: ./build_unix.sh
+        run: |
+          chmod +x ./build_unix.sh || true
+          bash ./build_unix.sh
         shell: bash
 
       - name: Build on macOS
         if: runner.os == 'macOS'
-        run: ./build_unix.sh
+        run: |
+          chmod +x ./build_unix.sh || true
+          bash ./build_unix.sh
         shell: bash
 
       - name: Upload build artifacts
