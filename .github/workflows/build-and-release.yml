@@ -122,42 +122,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Upload assets to draft release (via curl)"
+      - name: "Package artifacts into tar.gz"
         run: |
           set -euo pipefail
-          UPLOAD_URL='${{ steps.create_release.outputs.upload_url }}'
-          echo "Upload URL (raw): $UPLOAD_URL"
-          if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
-            echo "No upload URL found from create-release step. Aborting."
+          mkdir -p artifacts_zips
+          # Create a single tarball with everything under artifacts/
+          if [ -d artifacts ]; then
+            tar -czf artifacts_zips/tetrix-artifacts.tar.gz -C artifacts .
+          else
+            echo "No artifacts directory found; nothing to package"
             exit 1
           fi
-          # Strip the template suffix like '{?name,label}' if present
-          UPLOAD_URL_CLEAN=${UPLOAD_URL%\{*}
-          echo "Upload URL (clean): $UPLOAD_URL_CLEAN"
-
-          files_count=0
-          while IFS= read -r -d $'\0' file; do
-            files_count=$((files_count+1))
-            name=$(basename "$file")
-            echo "Uploading $file as $name"
-            resp=$(curl -sS -w "%{http_code}" -XPOST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @"$file" "$UPLOAD_URL_CLEAN?name=$name") || true
-            http_code=${resp: -3}
-            body=${resp%$http_code}
-            echo "HTTP $http_code"
-            if [ "$http_code" != "201" ] && [ "$http_code" != "200" ]; then
-              echo "Upload failed for $name. Response body:"
-              echo "$body"
-              exit 1
-            fi
-          done < <(find artifacts -type f -print0)
-
-          if [ "$files_count" -eq 0 ]; then
-            echo "No files found to upload in artifacts/.";
-            exit 1
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ls -la artifacts_zips
         shell: bash
+
+      - name: "Upload packaged artifacts to draft release"
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts_zips/tetrix-artifacts.tar.gz
+          asset_name: tetrix-artifacts-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
